@@ -1,7 +1,9 @@
 import numpy as np
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.preprocessing import StandardScaler
 
 class SVMClassifier:
-    def __init__(self, C=50, alpha=1, tol=1e-5, kmax=1000):
+    def __init__(self, C: int = 50, alpha: int = 1, tol: float = 1e-5, kmax: int = 1000) -> None:
         self.C = C
         self.alpha = alpha
         self.tol = tol
@@ -40,6 +42,7 @@ class SVMClassifier:
     def fit(self, X, Y):
         """Train the SVM model."""
         m, n = X.shape
+        Y = Y.reshape(-1, 1)
         A = Y * X
         Q = A @ A.T
         L = np.abs(np.linalg.eigvals(Q).max())
@@ -85,3 +88,24 @@ class SVMClassifier:
         predictions = self.predict(X)
         accuracy = 100 * np.mean(predictions == y)
         return accuracy
+
+if __name__ == "__main__":
+    # Generate some random data
+    np.random.seed(0)
+    X = np.random.uniform(0, 1, (100, 4))
+    y = np.random.choice([-1, 1], 100)
+
+    # Feature scaling
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=0)
+
+    C = [0.1, 1, 10, 100, 1000]
+    for c in C:
+        svm = SVMClassifier(C=c)
+        svm.fit(X_train, y_train)
+        accuracy = svm.score(X_test, y_test)
+        print(f"C={c}, Accuracy: {accuracy}")
+
