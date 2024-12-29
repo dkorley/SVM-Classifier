@@ -124,3 +124,4 @@ cython_debug/
 
 # py files
 eg.py
+soft_svm.py

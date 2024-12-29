@@ -20,21 +20,21 @@ class SVMClassifier:
         """Projection onto the first octant clipped at C."""
         return np.clip(w, 0, self.C)
 
-    def dykstra(self, Y, v):
-        """Dykstra's algorithm for projections."""
+    def dijkstra(self, Y, v):
+        """Dijkstra's algorithm for projections."""
         x = np.zeros_like(v)
         y = np.zeros_like(v)
         diff = 2 * self.tol
-        q = v
+        q = v.copy()
         iter_count = 0
         
         while diff > self.tol and iter_count < self.kmax:
-            qold = q
+            q_old = q
             p = self.proj_v(Y, q + x)
             x = q + x - p
             q = self.proj_first_octant(p + y)
             y = p + y - q
-            diff = np.linalg.norm(qold - q)
+            diff = np.linalg.norm(q_old - q)
             iter_count += 1
 
         return q 
@@ -56,7 +56,7 @@ class SVMClassifier:
             gradf = Q @ u - c
             u_old = u
             y = u - t * gradf
-            u = self.dykstra(Y, y)
+            u = self.dijkstra(Y, y)
             k += 1
             diff = np.linalg.norm(u - u_old)
 
